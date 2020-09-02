@@ -193,20 +193,55 @@ pub async fn run_instant_seal<B, CB, E, C, A, SC, T>(
 			}
 		});
 
-	let stream: Box<dyn Stream<Item=EngineCommand<<B as BlockT>::Hash>> + Unpin + Send> =
-		match heartbeat_opts
-	{
-		Some(hbo) => Box::new(HeartbeatStream::new(Box::new(commands_stream), hbo)),
-		None => Box::new(commands_stream),
-	};
+	// let stream: Box<dyn Stream<Item=EngineCommand<<B as BlockT>::Hash>> + Unpin + Send> =
+	// 	match heartbeat_opts
+	// {
+	// 	Some(hbo) => Box::new(HeartbeatStream::new(Box::new(commands_stream), hbo)),
+	// 	None => Box::new(commands_stream),
+	// };
+	let delay = tokio::time::delay_for(Duration::from_secs(heartbeat_opts.max_blocktime));
+	let is_max_block = true;
+	loop {
 
-	run_manual_seal(
-		block_import,
-		env,
-		client,
-		pool,
-		stream,
-		select_chain,
-		inherent_data_providers,
-	).await
+		match future::select(delay, commands_stream.next()) {
+			Either::A((_delay, commands_stream_fut)) => {
+				seal_new_block(
+					SealBlockParams {
+						sender,
+						parent_hash,
+						finalize,
+						create_empty,
+						env: &mut env,
+						select_chain: &select_chain,
+						block_import: &mut block_import,
+						inherent_data_provider: &inherent_data_providers,
+						pool: pool.clone(),
+						client: client.clone(),
+					}
+				).await;
+				is_max_block = true;
+			},
+			Either::B((delay_fut, Some(command)) => {
+				if is_max_block {
+					delay = tokio::time::delay_for(Duration::from_secs(heartbeat_opts.min_block_time));
+					continue;
+				} else {
+
+				}
+				// we need to await delay fut if it is min_block_time.
+				// else set delay to min block time and continue loop
+				// and while awaiting delay fut we'd need to discard any new commands on the command stream.
+			}
+		}
+	}
+
+	// run_manual_seal(
+	// 	block_import,
+	// 	env,
+	// 	client,
+	// 	pool,
+	// 	stream,
+	// 	select_chain,
+	// 	inherent_data_providers,
+	// ).await
 }
