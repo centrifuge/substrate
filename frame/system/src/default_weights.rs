@@ -54,4 +54,9 @@ impl crate::WeightInfo for () {
 	fn suicide() -> Weight {
 		(29247000 as Weight)
 	}
+	fn migrate_accounts(i: u32, ) -> Weight {
+		(0 as Weight)
+			.saturating_add((656000 as Weight).saturating_mul(i as Weight))
+			.saturating_add(DbWeight::get().writes((1 as Weight).saturating_mul(i as Weight)))
+	}
 }

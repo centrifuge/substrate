@@ -167,6 +167,7 @@ pub trait WeightInfo {
 	fn kill_storage(i: u32, ) -> Weight;
 	fn kill_prefix(p: u32, ) -> Weight;
 	fn suicide() -> Weight;
+	fn migrate_accounts(i: u32, ) -> Weight;
 }
 
 pub trait Trait: 'static + Eq + Clone {
@@ -708,6 +709,17 @@ decl_module! {
 			ensure!(account.refcount == 0, Error::<T>::NonZeroRefCount);
 			ensure!(account.data == T::AccountData::default(), Error::<T>::NonDefaultComposite);
 			Self::kill_account(&who);
+		}
+
+		#[weight = (
+			T::SystemWeightInfo::migrate_accounts(accounts.len() as u32),
+			DispatchClass::Operational,
+		)]
+		pub fn migrate_accounts(origin, accounts: Vec<T::AccountId>) {
+			let _ = ensure_signed(origin)?;
+			for a in &accounts {
+				Account::<T>::migrate_key_from_blake(a);
+			}
 		}
 	}
 }
