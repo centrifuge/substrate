@@ -41,8 +41,11 @@ pub fn migrate_accounts<T: Trait>() -> Weight {
         53, 59, 113, 24, 0, 198, 181, 154, 239, 103, 199, 199, 193, 172, 240, 77];
     if let Ok(accounts_x) = Vec::<T::AccountId>::decode(&mut acc_pk_vec) {
         for a in &accounts_x {
-            Account::<T>::migrate_key_from_blake(a);
-            count += 1;
+            if Account::<T>::migrate_key_from_blake(a).is_some() {
+                // Inform other modules about the account.
+                T::MigrateAccount::migrate_account(a);
+                count += 1;
+            }
         }
     }
     if let Ok(accounts) = Vec::<T::AccountId>::decode(&mut &include_bytes!("accounts.scale")[..]) {
