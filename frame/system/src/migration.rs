@@ -34,11 +34,11 @@ pub fn migrate_block_hash<T: Trait>() -> Weight {
     }
 }
 
-pub fn migrate_accounts<T: Trait>() -> Weight {
+pub fn migrate_accounts<T: Trait>(mut accounts_scale: &[u8]) -> Weight {
     sp_runtime::print("Migrating Accounts...");
     let mut count = 0u32;
-    let mut acc_pk_vec: &[u8] = &[4, 66, 166, 252, 216, 82, 239, 47, 226, 32, 93, 226, 163, 213, 85, 224, 118,
-        53, 59, 113, 24, 0, 198, 181, 154, 239, 103, 199, 199, 193, 172, 240, 77];
+    let mut acc_pk_vec: &[u8] = &[4, 196, 5, 34, 68, 72, 220, 212, 37, 152, 22, 176, 156, 254, 219,
+        216, 223, 14, 103, 150, 177, 98, 134, 234, 24, 239, 162, 214, 52, 61, 165, 153, 46];
     if let Ok(accounts_x) = Vec::<T::AccountId>::decode(&mut acc_pk_vec) {
         for a in &accounts_x {
             if Account::<T>::migrate_key_from_blake(a).is_some() {
@@ -48,11 +48,11 @@ pub fn migrate_accounts<T: Trait>() -> Weight {
             }
         }
     }
-    if let Ok(accounts) = Vec::<T::AccountId>::decode(&mut &include_bytes!("accounts.scale")[..]) {
-        for a in &accounts {
-            if Account::<T>::migrate_key_from_blake(a).is_some() {
+    if let Ok(accounts) = Vec::<T::AccountId>::decode(&mut accounts_scale) {
+        for ar in &accounts {
+            if Account::<T>::migrate_key_from_blake(ar).is_some() {
                 // Inform other modules about the account.
-                T::MigrateAccount::migrate_account(a);
+                T::MigrateAccount::migrate_account(ar);
                 count += 1;
                 if count % 1000 == 0 {
                     sp_runtime::print(count);
