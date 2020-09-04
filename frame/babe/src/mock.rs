@@ -88,6 +88,7 @@ impl frame_system::Trait for Test {
 	type MaximumBlockLength = MaximumBlockLength;
 	type ModuleToIndex = ();
 	type AccountData = pallet_balances::AccountData<u128>;
+	type MigrateAccount = ();
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();

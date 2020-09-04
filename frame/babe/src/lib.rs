@@ -251,6 +251,14 @@ decl_module! {
 			Lateness::<T>::kill();
 		}
 
+		fn on_runtime_upgrade() -> Weight {
+			for i in 0..=SegmentIndex::get() {
+				UnderConstruction::migrate_key_from_blake(i);
+			}
+			// TODO: determine weight
+			0
+		}
+
 		/// Report authority equivocation/misbehavior. This method will verify
 		/// the equivocation proof and validate the given key ownership proof
 		/// against the extracted offender. If both are valid, the offence will

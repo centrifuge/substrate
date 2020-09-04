@@ -56,7 +56,7 @@ use sp_runtime::{DispatchResult, RuntimeDebug, traits::{
 use frame_support::{decl_module, decl_event, decl_storage, decl_error, ensure, weights::Weight};
 use frame_support::traits::{
 	Currency, LockableCurrency, VestingSchedule, WithdrawReason, LockIdentifier,
-	ExistenceRequirement, Get,
+	ExistenceRequirement, Get, MigrateAccount,
 };
 use frame_system::{ensure_signed, ensure_root};
 
@@ -330,6 +330,12 @@ decl_module! {
 	}
 }
 
+impl<T: Trait> MigrateAccount<T::AccountId> for Module<T> {
+	fn migrate_account(a: &T::AccountId) {
+		Vesting::<T>::migrate_key_from_blake(a);
+	}
+}
+
 impl<T: Trait> Module<T> {
 	/// (Re)set or remove the module's currency lock on `who`'s account in accordance with their
 	/// current unvested amount.
@@ -459,6 +465,7 @@ mod tests {
 		type Version = ();
 		type ModuleToIndex = ();
 		type AccountData = pallet_balances::AccountData<u64>;
+		type MigrateAccount = ();
 		type OnNewAccount = ();
 		type OnKilledAccount = ();
 		type SystemWeightInfo = ();

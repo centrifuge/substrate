@@ -84,6 +84,7 @@ impl frame_system::Trait for Test {
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type AccountData = pallet_balances::AccountData<u64>;
+	type MigrateAccount = ();
 	type SystemWeightInfo = ();
 }
 

@@ -188,6 +188,7 @@ impl frame_system::Trait for Runtime {
 	type OnKilledAccount = ();
 	/// The data to be stored in an account.
 	type AccountData = pallet_balances::AccountData<Balance>;
+	type MigrateAccount = ();
 	/// Weight information for the extrinsics of this pallet.
 	type SystemWeightInfo = ();
 }

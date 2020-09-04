@@ -81,12 +81,16 @@ use sp_runtime::traits::{StaticLookup, Zero, AppendZerosInput, Saturating};
 use frame_support::{
 	decl_module, decl_event, decl_storage, ensure, decl_error,
 	dispatch::DispatchResultWithPostInfo,
-	traits::{Currency, ReservableCurrency, OnUnbalanced, Get, BalanceStatus, EnsureOrigin},
+	traits::{Currency, ReservableCurrency, OnUnbalanced, Get, BalanceStatus, EnsureOrigin,
+			 MigrateAccount},
 	weights::Weight,
 };
 use frame_system::ensure_signed;
 
-mod benchmarking;
+#[cfg(feature = "runtime-benchmarks")]
+pub mod benchmarking;
+
+mod migration;
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 type NegativeImbalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::NegativeImbalance;
@@ -1220,6 +1224,10 @@ decl_module! {
 			)).into())
 		}
 
+		fn on_runtime_upgrade() -> Weight {
+			migration::on_runtime_upgrade::<T>()
+		}
+
 		/// Add the given account to the sender's subs.
 		///
 		/// Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
@@ -1329,6 +1337,18 @@ impl<T: Trait> Module<T> {
 	}
 }
 
+impl<T: Trait> MigrateAccount<T::AccountId> for Module<T> {
+	fn migrate_account(a: &T::AccountId) {
+		if IdentityOf::<T>::migrate_key_from_blake(a).is_some() {
+			if let Some((_, subs)) = SubsOf::<T>::migrate_key_from_blake(a) {
+				for sub in subs.into_iter() {
+					SuperOf::<T>::migrate_key_from_blake(sub);
+				}
+			}
+		}
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -1379,6 +1399,7 @@ mod tests {
 		type Version = ();
 		type ModuleToIndex = ();
 		type AccountData = pallet_balances::AccountData<u64>;
+		type MigrateAccount = ();
 		type OnNewAccount = ();
 		type OnKilledAccount = ();
 		type SystemWeightInfo = ();

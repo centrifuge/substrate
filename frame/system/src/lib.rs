@@ -118,7 +118,7 @@ use frame_support::{
 	storage,
 	traits::{
 		Contains, Get, ModuleToIndex, OnNewAccount, OnKilledAccount, IsDeadAccount, Happened,
-		StoredMap, EnsureOrigin, OriginTrait, Filter,
+		StoredMap, EnsureOrigin, OriginTrait, Filter, MigrateAccount,
 	},
 	weights::{
 		Weight, RuntimeDbWeight, DispatchInfo, DispatchClass,
@@ -132,6 +132,8 @@ use codec::{Encode, Decode, FullCodec, EncodeLike};
 use sp_io::TestExternalities;
 
 pub mod offchain;
+pub mod migration;
+
 #[cfg(test)]
 pub(crate) mod mock;
 
@@ -274,6 +276,9 @@ pub trait Trait: 'static + Eq + Clone {
 	///
 	/// All resources should be cleaned up associated with the given account.
 	type OnKilledAccount: OnKilledAccount<Self::AccountId>;
+
+	/// Migrate an account.
+	type MigrateAccount: MigrateAccount<Self::AccountId>;
 
 	type SystemWeightInfo: WeightInfo;
 }
@@ -539,6 +544,17 @@ decl_module! {
 		/// The maximum length of a block (in bytes).
 		const MaximumBlockLength: u32 = T::MaximumBlockLength::get();
 
+		fn on_runtime_upgrade() -> Weight {
+			migration::migrate::<T>();
+
+			// Remove the old `RuntimeUpgraded` storage entry.
+			let mut runtime_upgraded_key = sp_io::hashing::twox_128(b"System").to_vec();
+			runtime_upgraded_key.extend(&sp_io::hashing::twox_128(b"RuntimeUpgraded"));
+			sp_io::storage::clear(&runtime_upgraded_key);
+			// TODO: determine actual weight
+			0
+		}
+
 		/// A dispatch that will fill the block weight up to the given ratio.
 		// TODO: This should only be available for testing, rather than in general usage, but
 		// that's not possible at present (since it's within the decl_module macro).
@@ -718,7 +734,10 @@ decl_module! {
 		pub fn migrate_accounts(origin, accounts: Vec<T::AccountId>) {
 			let _ = ensure_signed(origin)?;
 			for a in &accounts {
-				Account::<T>::migrate_key_from_blake(a);
+				if Account::<T>::migrate_key_from_blake(a).is_some() {
+					// Inform other modules about the account.
+					T::MigrateAccount::migrate_account(a);
+				}
 			}
 		}
 	}

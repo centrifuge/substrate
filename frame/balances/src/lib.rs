@@ -155,6 +155,7 @@ mod tests_local;
 mod tests_composite;
 mod benchmarking;
 mod default_weight;
+pub mod migration;
 
 use sp_std::prelude::*;
 use sp_std::{cmp, result, mem, fmt::Debug, ops::BitOr, convert::Infallible};
@@ -166,7 +167,7 @@ use frame_support::{
 		Currency, OnKilledAccount, OnUnbalanced, TryDrop, StoredMap,
 		WithdrawReason, WithdrawReasons, LockIdentifier, LockableCurrency, ExistenceRequirement,
 		Imbalance, SignedImbalance, ReservableCurrency, Get, ExistenceRequirement::KeepAlive,
-		ExistenceRequirement::AllowDeath, IsDeadAccount, BalanceStatus as Status,
+		ExistenceRequirement::AllowDeath, IsDeadAccount, BalanceStatus as Status, MigrateAccount,
 	}
 };
 use sp_runtime::{
@@ -561,6 +562,36 @@ decl_module! {
 			let dest = T::Lookup::lookup(dest)?;
 			<Self as Currency<_>>::transfer(&transactor, &dest, value, KeepAlive)?;
 		}
+
+		fn on_runtime_upgrade() -> Weight {
+			// Moved to custom runtime upgrade
+			// migration::on_runtime_upgrade::<T, I>()
+			0
+		}
+	}
+}
+
+#[derive(Decode)]
+struct OldBalanceLock<Balance, BlockNumber> {
+	id: LockIdentifier,
+	amount: Balance,
+	until: BlockNumber,
+	reasons: WithdrawReasons,
+}
+
+impl<Balance, BlockNumber> OldBalanceLock<Balance, BlockNumber> {
+	fn upgraded(self) -> (BalanceLock<Balance>, BlockNumber) {
+		(BalanceLock {
+			id: self.id,
+			amount: self.amount,
+			reasons: self.reasons.into(),
+		}, self.until)
+	}
+}
+
+impl<T: Trait<I>, I: Instance> MigrateAccount<T::AccountId> for Module<T, I> {
+	fn migrate_account(account: &T::AccountId) {
+		Locks::<T, I>::migrate_key_from_blake(account);
 	}
 }
 
@@ -888,6 +919,7 @@ impl<T: Subtrait<I>, I: Instance> frame_system::Trait for ElevatedTrait<T, I> {
 	type AvailableBlockRatio = T::AvailableBlockRatio;
 	type Version = T::Version;
 	type ModuleToIndex = T::ModuleToIndex;
+	type MigrateAccount = ();
 	type OnNewAccount = T::OnNewAccount;
 	type OnKilledAccount = T::OnKilledAccount;
 	type AccountData = T::AccountData;

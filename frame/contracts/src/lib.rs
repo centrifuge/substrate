@@ -90,6 +90,8 @@ mod benchmarking;
 #[cfg(test)]
 mod tests;
 
+mod migration;
+
 use crate::exec::ExecutionContext;
 use crate::wasm::{WasmLoader, WasmVm};
 
@@ -612,6 +614,10 @@ decl_module! {
 			if rent::snitch_contract_should_be_evicted::<T>(&dest, handicap) {
 				T::Currency::deposit_into_existing(&rewarded, T::SurchargeReward::get())?;
 			}
+		}
+
+		fn on_runtime_upgrade() -> Weight {
+			migration::on_runtime_upgrade::<T>()
 		}
 	}
 }

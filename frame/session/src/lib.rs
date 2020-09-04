@@ -109,6 +109,7 @@ use frame_support::{
 	ensure, decl_module, decl_event, decl_storage, decl_error, ConsensusEngineId, Parameter,
 	traits::{
 		Get, FindAuthor, ValidatorRegistration, EstimateNextSessionRotation, EstimateNextNewSession,
+		MigrateAccount,
 	},
 	dispatch::{self, DispatchResult, DispatchError},
 	weights::Weight,
@@ -567,6 +568,18 @@ decl_module! {
 				// included as weight for empty block, the database part is expected to be in
 				// cache.
 				0
+			}
+		}
+	}
+}
+
+impl<T: Trait> MigrateAccount<T::AccountId> for Module<T> {
+	fn migrate_account(a: &T::AccountId) {
+		if let Some(v) = T::ValidatorIdOf::convert(a.clone()) {
+			if let Some(keys) = NextKeys::<T>::migrate_key_from_blake(v) {
+				for id in T::Keys::key_ids() {
+					KeyOwner::<T>::migrate_key_from_blake((*id, keys.get_raw(*id)));
+				}
 			}
 		}
 	}

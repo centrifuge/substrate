@@ -569,6 +569,7 @@ mod tests {
 		type Version = RuntimeVersion;
 		type ModuleToIndex = ();
 		type AccountData = pallet_balances::AccountData<Balance>;
+		type MigrateAccount = ();
 		type OnNewAccount = ();
 		type OnKilledAccount = ();
 		type SystemWeightInfo = ();

@@ -56,6 +56,8 @@ use sp_runtime::{
 };
 use pallet_transaction_payment_rpc_runtime_api::RuntimeDispatchInfo;
 
+mod migration;
+
 /// Fee multiplier.
 pub type Multiplier = FixedU128;
 
@@ -252,6 +254,10 @@ decl_module! {
 			NextFeeMultiplier::mutate(|fm| {
 				*fm = T::FeeMultiplierUpdate::convert(*fm);
 			});
+		}
+
+		fn on_runtime_upgrade() -> Weight {
+			migration::on_runtime_upgrade::<T>()
 		}
 
 		fn integrity_test() {
@@ -641,6 +647,7 @@ mod tests {
 		type Version = ();
 		type ModuleToIndex = ();
 		type AccountData = pallet_balances::AccountData<u64>;
+		type MigrateAccount = ();
 		type OnNewAccount = ();
 		type OnKilledAccount = ();
 		type SystemWeightInfo = ();
