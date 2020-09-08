@@ -72,6 +72,7 @@
 mod mock;
 mod tests;
 mod benchmarking;
+mod migrations;
 
 use sp_application_crypto::RuntimeAppPublic;
 use codec::{Encode, Decode};

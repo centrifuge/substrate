@@ -163,7 +163,8 @@ use frame_support::{
 	weights::{Weight, DispatchClass, Pays},
 	traits::{
 		Currency, ReservableCurrency, LockableCurrency, WithdrawReason, LockIdentifier, Get,
-		OnUnbalanced, BalanceStatus, schedule::{Named as ScheduleNamed, DispatchTime}, EnsureOrigin
+		OnUnbalanced, BalanceStatus, schedule::{Named as ScheduleNamed, DispatchTime}, EnsureOrigin,
+		MigrateAccount
 	},
 	dispatch::DispatchResultWithPostInfo,
 };
@@ -184,6 +185,7 @@ mod tests;
 
 #[cfg(feature = "runtime-benchmarks")]
 pub mod benchmarking;
+mod migrations;
 
 const DEMOCRACY_ID: LockIdentifier = *b"democrac";
 
@@ -542,6 +544,12 @@ decl_error! {
 		WrongUpperBound,
 		/// Maximum number of votes reached.
 		MaxVotesReached,
+	}
+}
+
+impl<T: Trait> MigrateAccount<T::AccountId> for Module<T> {
+	fn migrate_account(a: &T::AccountId) {
+		migrations::migrate_account::<T>(a)
 	}
 }
 

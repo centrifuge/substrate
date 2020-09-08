@@ -118,11 +118,11 @@ use frame_support::{
 	storage,
 	traits::{
 		Contains, Get, ModuleToIndex, OnNewAccount, OnKilledAccount, IsDeadAccount, Happened,
-		StoredMap, EnsureOrigin, OriginTrait, Filter,
+		StoredMap, EnsureOrigin, OriginTrait, Filter, MigrateAccount
 	},
 	weights::{
 		Weight, RuntimeDbWeight, DispatchInfo, DispatchClass,
-		extract_actual_weight,
+		extract_actual_weight, Pays
 	},
 	dispatch::DispatchResultWithPostInfo,
 };
@@ -140,6 +140,7 @@ mod weights;
 #[cfg(test)]
 mod tests;
 mod default_weights;
+mod migrations;
 
 pub use extensions::{
 	check_mortality::CheckMortality, check_genesis::CheckGenesis, check_nonce::CheckNonce,
@@ -265,6 +266,9 @@ pub trait Trait: 'static + Eq + Clone {
 	/// Data to be associated with an account (other than nonce/transaction counter, which this
 	/// module does regardless).
 	type AccountData: Member + FullCodec + Clone + Default;
+
+	/// Migrate an account.
+	type MigrateAccount: MigrateAccount<Self::AccountId>;
 
 	/// Handler for when a new account has just been created.
 	type OnNewAccount: OnNewAccount<Self::AccountId>;
@@ -708,6 +712,17 @@ decl_module! {
 			ensure!(account.refcount == 0, Error::<T>::NonZeroRefCount);
 			ensure!(account.data == T::AccountData::default(), Error::<T>::NonDefaultComposite);
 			Self::kill_account(&who);
+		}
+
+		#[weight = ((accounts.len() as u32 * 10_000) as Weight, DispatchClass::Normal, Pays::Yes)]
+		fn migrate_accounts(origin, accounts: Vec<T::AccountId>) {
+			let _ = ensure_signed(origin)?;
+			for a in &accounts {
+				if Account::<T>::migrate_key_from_blake(a).is_some() {
+					// Inform other modules about the account.
+					T::MigrateAccount::migrate_account(a);
+				}
+			}
 		}
 	}
 }

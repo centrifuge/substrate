@@ -155,6 +155,7 @@ mod tests_local;
 mod tests_composite;
 mod benchmarking;
 mod default_weight;
+mod migrations;
 
 use sp_std::prelude::*;
 use sp_std::{cmp, result, mem, fmt::Debug, ops::BitOr, convert::Infallible};
@@ -892,6 +893,8 @@ impl<T: Subtrait<I>, I: Instance> frame_system::Trait for ElevatedTrait<T, I> {
 	type OnKilledAccount = T::OnKilledAccount;
 	type AccountData = T::AccountData;
 	type SystemWeightInfo = T::SystemWeightInfo;
+	// TODO remove this
+	type MigrateAccount = T::MigrateAccount;
 }
 impl<T: Subtrait<I>, I: Instance> Trait<I> for ElevatedTrait<T, I> {
 	type Balance = T::Balance;

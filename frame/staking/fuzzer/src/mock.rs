@@ -19,6 +19,7 @@
 
 use sp_runtime::traits::{Convert, SaturatedConversion};
 use frame_support::{impl_outer_origin, impl_outer_dispatch, parameter_types};
+use frame_system::Trait;
 
 type AccountId = u64;
 type AccountIndex = u32;
@@ -82,6 +83,7 @@ impl frame_system::Trait for Test {
 	type OnNewAccount = ();
 	type OnKilledAccount = (Balances,);
 	type SystemWeightInfo = ();
+	type MigrateAccount = ();
 }
 parameter_types! {
 	pub const ExistentialDeposit: Balance = 10;

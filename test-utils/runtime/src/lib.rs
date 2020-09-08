@@ -59,6 +59,7 @@ use cfg_if::cfg_if;
 
 // Ensure Babe and Aura use the same crypto to simplify things a bit.
 pub use sp_consensus_babe::{AuthorityId, SlotNumber, AllowedSlots};
+use frame_system::Trait;
 
 pub type AuraId = sp_consensus_aura::sr25519::AuthorityId;
 
@@ -451,6 +452,7 @@ impl frame_system::Trait for Runtime {
 	type Version = ();
 	type ModuleToIndex = ();
 	type AccountData = ();
+	type MigrateAccount = ();
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();

@@ -122,6 +122,7 @@ mod tests;
 
 #[cfg(feature = "historical")]
 pub mod historical;
+mod migrations;
 
 /// Decides whether the session should be ended.
 pub trait ShouldEndSession<BlockNumber> {

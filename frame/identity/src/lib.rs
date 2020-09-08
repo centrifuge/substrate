@@ -81,7 +81,7 @@ use sp_runtime::traits::{StaticLookup, Zero, AppendZerosInput, Saturating};
 use frame_support::{
 	decl_module, decl_event, decl_storage, ensure, decl_error,
 	dispatch::DispatchResultWithPostInfo,
-	traits::{Currency, ReservableCurrency, OnUnbalanced, Get, BalanceStatus, EnsureOrigin},
+	traits::{Currency, ReservableCurrency, OnUnbalanced, Get, BalanceStatus, EnsureOrigin, MigrateAccount},
 	weights::Weight,
 };
 use frame_system::ensure_signed;
@@ -1326,6 +1326,19 @@ impl<T: Trait> Module<T> {
 			.into_iter()
 			.filter_map(|a| SuperOf::<T>::get(&a).map(|x| (a, x.1)))
 			.collect()
+	}
+}
+
+
+impl<T: Trait> MigrateAccount<T::AccountId> for Module<T> {
+	fn migrate_account(a: &T::AccountId) {
+		if IdentityOf::<T>::migrate_key_from_blake(a).is_some() {
+			if let Some((_, subs)) = SubsOf::<T>::migrate_key_from_blake(a) {
+				for sub in subs.into_iter() {
+					SuperOf::<T>::migrate_key_from_blake(sub);
+				}
+			}
+		}
 	}
 }
 

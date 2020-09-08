@@ -57,6 +57,7 @@ mod benchmarking;
 mod mock;
 #[cfg(all(feature = "std", test))]
 mod tests;
+mod migrations;
 
 pub use equivocation::{BabeEquivocationOffence, EquivocationHandler, HandleEquivocation};
 
@@ -291,6 +292,11 @@ decl_module! {
 				equivocation_proof,
 				key_owner_proof,
 			)?;
+		}
+
+		fn on_runtime_upgrade() -> Weight {
+			migrations::migrate::<T>();
+			0
 		}
 	}
 }

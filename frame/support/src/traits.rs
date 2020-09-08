@@ -516,6 +516,13 @@ impl<AccountId> IsDeadAccount<AccountId> for () {
 	}
 }
 
+/// Migrate a given account.
+#[impl_for_tuples(30)]
+pub trait MigrateAccount<A> {
+	/// Migrate the `account`.
+	fn migrate_account(account: &A);
+}
+
 /// Handler for when a new account has been created.
 #[impl_for_tuples(30)]
 pub trait OnNewAccount<AccountId> {
