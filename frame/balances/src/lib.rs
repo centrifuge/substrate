@@ -893,7 +893,6 @@ impl<T: Subtrait<I>, I: Instance> frame_system::Trait for ElevatedTrait<T, I> {
 	type OnKilledAccount = T::OnKilledAccount;
 	type AccountData = T::AccountData;
 	type SystemWeightInfo = T::SystemWeightInfo;
-	// TODO remove this
 	type MigrateAccount = T::MigrateAccount;
 }
 impl<T: Subtrait<I>, I: Instance> Trait<I> for ElevatedTrait<T, I> {

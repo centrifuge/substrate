@@ -293,11 +293,6 @@ decl_module! {
 				key_owner_proof,
 			)?;
 		}
-
-		fn on_runtime_upgrade() -> Weight {
-			migrations::migrate::<T>();
-			0
-		}
 	}
 }
 
