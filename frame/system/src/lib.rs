@@ -140,7 +140,7 @@ mod weights;
 #[cfg(test)]
 mod tests;
 mod default_weights;
-mod migrations;
+pub mod migrations;
 
 pub use extensions::{
 	check_mortality::CheckMortality, check_genesis::CheckGenesis, check_nonce::CheckNonce,

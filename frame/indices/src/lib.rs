@@ -124,6 +124,11 @@ decl_module! {
 	pub struct Module<T: Trait> for enum Call where origin: T::Origin, system = frame_system {
 		fn deposit_event() = default;
 
+		fn on_runtime_upgrade() -> Weight {
+			migrations::migrate::<T>();
+			0
+		}
+
 		/// Assign an previously unassigned index.
 		///
 		/// Payment: `Deposit` is reserved from the sender account.

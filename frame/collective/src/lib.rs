@@ -378,6 +378,11 @@ decl_module! {
 
 		fn deposit_event() = default;
 
+		fn on_runtime_upgrade() -> Weight {
+			migrations::migrate::<T, I>();
+			0
+		}
+
 		/// Set the collective's membership.
 		///
 		/// - `new_members`: The new member list. Be nice to the chain and provide it sorted.

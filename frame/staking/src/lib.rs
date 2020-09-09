@@ -279,7 +279,7 @@ pub mod benchmarking;
 pub mod slashing;
 pub mod offchain_election;
 pub mod inflation;
-mod migrations;
+pub mod migrations;
 
 use sp_std::{
 	result,

@@ -76,6 +76,11 @@ decl_module! {
 			CachedObsolete::<T>::remove_all();
 			0
 		}
+
+		fn on_runtime_upgrade() -> Weight {
+			migration::migrate::<T>();
+			0
+		}
 	}
 }
 
