@@ -32,6 +32,8 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod migrations;
+
 use sp_std::prelude::*;
 use codec::{Encode, Decode};
 use frame_support::{
@@ -252,6 +254,10 @@ decl_module! {
 			NextFeeMultiplier::mutate(|fm| {
 				*fm = T::FeeMultiplierUpdate::convert(*fm);
 			});
+		}
+
+		fn on_runtime_upgrade() -> Weight {
+			migrations::on_runtime_upgrade::<T>()
 		}
 
 		fn integrity_test() {
