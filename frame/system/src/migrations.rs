@@ -19,10 +19,9 @@ fn migrate_block_hash<T: Trait>() {
 	// Number - 2 is therefore the most recent block's hash that needs migrating.
 	let block_num = Number::<T>::get();
 	frame_support::runtime_print!("BlockNumber: {}", block_num.saturated_into::<u64>());
-	BlockHash::<T>::migrate_key_from_blake(0);
+	BlockHash::<T>::migrate_key_from_blake(T::BlockNumber::zero());
 	if block_num > One::one() {
 		sp_runtime::print("🕊️  Migrating BlockHashes...");
-		BlockHash::<T>::migrate_key_from_blake(T::BlockNumber::zero());
 		let mut n = block_num - One::one() - One::one();
 		let mut migrations = 1;
 		while !n.is_zero() {
