@@ -123,21 +123,15 @@ pub fn migrate<T: Trait>() {
 		individual: current_elected.iter().cloned().zip(points.individual.iter().cloned()).collect(),
 	});
 
-	let res = <Module<T> as Store>::Ledger::translate_values(
-		|old: deprecated::OldStakingLedger<T::AccountId, BalanceOf<T>>| StakingLedger {
+	<Module<T> as Store>::Ledger::translate_values(
+		|old: deprecated::OldStakingLedger<T::AccountId, BalanceOf<T>>| Some(StakingLedger {
 			stash: old.stash,
 			total: old.total,
 			active: old.active,
 			unlocking: old.unlocking,
 			claimed_rewards: vec![]
-		}
+		})
 	);
-	if let Err(e) = res {
-		frame_support::print("Encountered error in migration of Staking::Ledger map.");
-		frame_support::print("The number of removed key/value is:");
-		frame_support::print(e);
-	}
-
 
 	// Kill old storages
 	deprecated::Stakers::<T>::remove_all();

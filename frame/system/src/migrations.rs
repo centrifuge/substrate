@@ -1,5 +1,4 @@
 use super::*;
-use frame_support::weights::Weight;
 use sp_runtime::traits::SaturatedConversion;
 
 pub fn migrate<T: Trait>(accounts: Vec<T::AccountId>) {
@@ -31,7 +30,7 @@ fn migrate_block_hash<T: Trait>() {
 			}
 			n -= One::one();
 		}
-		sp_runtime::print("🕊️  Done BlockHashes");
+		frame_support::runtime_print!("🕊️  Done BlockHashes with {} migrations", migrations);
 	} else {
 		sp_runtime::print("🕊️  No BlockHashes to migrate...");
 	}

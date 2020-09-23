@@ -19,7 +19,6 @@
 
 use sp_runtime::traits::{Convert, SaturatedConversion};
 use frame_support::{impl_outer_origin, impl_outer_dispatch, parameter_types};
-use frame_system::Trait;
 
 type AccountId = u64;
 type AccountIndex = u32;

@@ -40,7 +40,6 @@ pub use frame_support::{
 
 /// Import the template pallet.
 pub use template;
-use frame_system::Trait;
 
 /// An index to a block.
 pub type BlockNumber = u32;

@@ -32,7 +32,7 @@ use frame_support::{
 	},
 	traits::{Currency, Imbalance, KeyOwnerProofSystem, OnUnbalanced, Randomness, LockIdentifier},
 };
-use frame_system::{EnsureRoot, EnsureOneOf, Trait};
+use frame_system::{EnsureRoot, EnsureOneOf};
 use frame_support::traits::InstanceFilter;
 use codec::{Encode, Decode};
 use sp_core::{
