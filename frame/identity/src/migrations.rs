@@ -6,7 +6,6 @@ use frame_support::storage::migration::{put_storage_value, take_storage_value, S
 // Since the format of the storage items themselves have not changed, we do not
 // need to keep track of a storage version. If the runtime does not need to be
 // upgraded, nothing here will happen anyway.
-
 pub fn change_name_sudo_to_identity<T: Trait>() {
 	sp_runtime::print("Migrating Identity.");
 
