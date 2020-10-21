@@ -237,11 +237,6 @@ decl_module! {
 			0
 		}
 
-		fn on_runtime_upgrade() -> Weight {
-			migrations::migrate::<T>();
-			0
-		}
-
 		/// Block finalization
 		fn on_finalize() {
 			// at the end of the block, we can safely include the new VRF output

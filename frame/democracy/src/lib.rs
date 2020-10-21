@@ -557,11 +557,6 @@ decl_module! {
 	pub struct Module<T: Trait> for enum Call where origin: T::Origin {
 		type Error = Error<T>;
 
-		fn on_runtime_upgrade() -> Weight {
-			migrations::migrate::<T>();
-			0
-		}
-
 		/// The minimum period of locking and the period between a proposal being approved and enacted.
 		///
 		/// It should generally be a little more than the unstake period to ensure that

@@ -333,11 +333,6 @@ decl_module! {
 
 		fn deposit_event() = default;
 
-		fn on_runtime_upgrade() -> Weight {
-			migrations::migrate::<T>();
-			0
-		}
-
 		/// # <weight>
 		/// - Complexity: `O(K + E)` where K is length of `Keys` and E is length of
 		///   `Heartbeat.network_state.external_address`

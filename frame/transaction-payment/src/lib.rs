@@ -256,10 +256,6 @@ decl_module! {
 			});
 		}
 
-		fn on_runtime_upgrade() -> Weight {
-			migrations::on_runtime_upgrade::<T>()
-		}
-
 		fn integrity_test() {
 			// given weight == u64, we build multipliers from `diff` of two weight values, which can
 			// at most be MaximumBlockWeight. Make sure that this can fit in a multiplier without
