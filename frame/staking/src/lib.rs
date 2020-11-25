@@ -1427,6 +1427,23 @@ decl_module! {
 			consumed_weight
 		}
 
+		fn on_runtime_upgrade() -> Weight {
+			let mut consumed_weight = 0;
+			let mut add_weight = |reads, writes, weight| {
+				consumed_weight += T::DbWeight::get().reads_writes(reads, writes);
+				consumed_weight += weight;
+			};
+			<UnappliedSlashes<T>>::remove_all();
+			add_weight(0, 1, 0);
+
+			<SlashingSpans<T>>::remove_all();
+			add_weight(0, 1, 0);
+
+			<SpanSlash<T>>::remove_all();
+			add_weight(0, 1, 0);
+			consumed_weight
+		}
+
 		/// Check if the current block number is the one at which the election window has been set
 		/// to open. If so, it runs the offchain worker code.
 		fn offchain_worker(now: T::BlockNumber) {
