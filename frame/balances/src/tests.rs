@@ -352,6 +352,29 @@ macro_rules! decl_tests {
 		}
 
 		#[test]
+		fn balance_add_works() {
+			<$ext_builder>::default().build().execute_with(|| {
+				let _ = Balances::deposit_creating(&1, 42);
+				assert_eq!(Balances::free_balance(1), 42);
+				assert_eq!(Balances::reserved_balance(1), 0);
+				assert_eq!(Balances::total_balance(&1), 42);
+				let prev_issuance = Balances::total_issuance();
+				assert_eq!(prev_issuance, 42);
+				assert_ok!(Balances::add_balance(1, 10));
+				assert_eq!(Balances::free_balance(1), 52);
+				assert_eq!(Balances::total_balance(&1), 52);
+				assert_eq!(Balances::total_issuance(), prev_issuance);
+
+				// missing account
+				assert_eq!(Balances::free_balance(1000), 0);
+				assert_ok!(Balances::add_balance(1000, 10));
+				assert_eq!(Balances::free_balance(1000), 0);
+				assert_eq!(Balances::total_balance(&1000), 0);
+				assert_eq!(Balances::total_issuance(), prev_issuance);
+			});
+		}
+
+		#[test]
 		fn balance_transfer_works() {
 			<$ext_builder>::default().build().execute_with(|| {
 				let _ = Balances::deposit_creating(&1, 111);

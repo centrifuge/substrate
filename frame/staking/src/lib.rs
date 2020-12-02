@@ -279,6 +279,7 @@ pub mod benchmarking;
 pub mod slashing;
 pub mod offchain_election;
 pub mod inflation;
+pub mod migrations;
 
 use sp_std::{
 	result,
@@ -1424,23 +1425,6 @@ decl_module! {
 			add_weight(3, 0, 0);
 			// Additional read from `on_finalize`
 			add_weight(1, 0, 0);
-			consumed_weight
-		}
-
-		fn on_runtime_upgrade() -> Weight {
-			let mut consumed_weight = 0;
-			let mut add_weight = |reads, writes, weight| {
-				consumed_weight += T::DbWeight::get().reads_writes(reads, writes);
-				consumed_weight += weight;
-			};
-			<UnappliedSlashes<T>>::remove_all();
-			add_weight(0, 1, 0);
-
-			<SlashingSpans<T>>::remove_all();
-			add_weight(0, 1, 0);
-
-			<SpanSlash<T>>::remove_all();
-			add_weight(0, 1, 0);
 			consumed_weight
 		}
 
