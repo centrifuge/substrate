@@ -19,7 +19,7 @@ kvdb-rocksdb = { version = "0.9", optional = true }
 kvdb-memorydb = "0.7.0"
 linked-hash-map = "0.5.2"
 hash-db = "0.15.2"
-parity-util-mem = { version = "0.7.0", default-features = false, features = ["std"] }
+parity-util-mem = { git = "https://github.com/centrifuge/parity-common.git", branch = "multi-util-mem-v2", default-features = false, features =["primitive-types"] }
 codec = { package = "parity-scale-codec", version = "1.3.4", features = ["derive"] }
 blake2-rfc = "0.2.18"
 
